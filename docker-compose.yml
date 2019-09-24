@@ -1,0 +1,22 @@
+version: "2.3"
+services:
+  app:
+    image: stephenlu_filter
+    depends_on:
+      - redis
+    environment:
+      - FLASK_ENV=development
+    ports:
+      - "5000:5000"
+    volumes:
+    - .:/usr/src/app
+    healthcheck:
+      test: ["CMD", "curl", "localhost:5000"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 1m
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
