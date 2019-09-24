@@ -14,6 +14,10 @@ Run redis locally
 
     docker run --name redis -p 6379:6379 -d redis
 
+Run redis locally
+
+    docker run --name redis -p 6379:6379 -d redis
+
 Build the docker
 
     docker build . -t stephenlu_filter
