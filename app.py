@@ -3,9 +3,18 @@ import json
 import requests
 import redis
 from pushover import Client
+import consul
 
 application = Flask(__name__)
-application.config.from_pyfile('instance/config.py', silent=False)
+c = consul.Consul()
+consul_path = "radarr_stephenlu_filter/"
+keys = c.kv.get(consul_path, keys=True)
+config_keys = keys[1]
+for key in config_keys:
+    if key != consul_path:
+        config_key = key.replace(consul_path, '')
+        index, data = c.kv.get(key)
+        application.config[config_key] = data['Value'].decode("utf-8")
 
 
 @application.route('/')
