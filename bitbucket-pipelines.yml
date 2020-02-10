@@ -9,6 +9,7 @@ pipelines:
           - pip install -r requirements.txt
           - pip install flake8
           - flake8 --max-line-length=120 *.py
+          - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
           - docker build -t chrisjohnson00/radarr_stephenlu_filter:$BITBUCKET_BRANCH .
           - docker push chrisjohnson00/radarr_stephenlu_filter:$BITBUCKET_BRANCH
         services:
@@ -23,6 +24,7 @@ pipelines:
             - pip install -r requirements.txt
             - pip install flake8
             - flake8 --max-line-length=120 *.py
+            - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
             - docker build -t chrisjohnson00/radarr_stephenlu_filter:latest .
             - docker tag chrisjohnson00/radarr_stephenlu_filter:latest chrisjohnson00/radarr_stephenlu_filter:$BITBUCKET_TAG
             - docker push chrisjohnson00/radarr_stephenlu_filter:latest
