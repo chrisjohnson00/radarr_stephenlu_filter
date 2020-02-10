@@ -1,12 +1,9 @@
 language: bash
-env:
-  global:
-    - secure: "Ppa5NnUQCURpYrKQ7Fb7Pwn7i7jVipBx/pRGQKMFANDwkDotCdxn7XG7XeExat5gKt+tGoJYsZEyGhMRCsZs857U2yxmKMVOOoqHio63WzVCDIZsl0tQUGq9wn50niHeyakH+myYDcOsR/F1MCjlMI8wpjuYJeEsJbHwQCmQxVvGkM+YpiTro8H7yXbofb3kezjunyZhYX0/+hkt6EXCX/xuacPVqABmspl8Y+UGZ1fqd1+MTmwQQnqa75Ht/WjMGN3UnFsSk/JXnxBxojiFBEYj+3Q8yo87vb6SG3cwwmhcOiSa+Poj4QafN7CMf/BAYqjO1OYU5ELHy0LGvbwpotAAjYMfsQH0LZtfmJwU/ORMsHU0VdlAtafBSunCPK8w9zS8T2stXj+SGWq8tndtjPeyUqdVQzoEpuS1RrOLBOY3XdkPY05jpiU+sF8eDu/6QhlVU6giEaJ8YDfYCc3WQVfhZJ0rua40D6N+JtzoLGpq+fuBEOywy5wv6Wwnfb+VQFkims8Txa1VkInSvMPDz9rkM96fU7zM4QzKDg2oxOoSBDwzn2SO2Dkh0S5xUvRjpsbdT1HE7KkW/MGzjokZXUFxnw5gt8qLzFP8oN5hl/e+0fP0U92Vm76M0gD3Q5pDEYoxa+Ad6UJCnzk0pRMaudbChtwGQE+9zbps875CbrQ="
 arch:
   - arm64
 services:
   - docker
 script:
   - docker build -t chrisjohnson00/radarr_stephenlu_filter -f Dockerfile .
-  - docker login --username=chrisjohnson00 --password=$DOCKER_PWD
+  - docker login --username=chrisjohnson00 --password=$DOCKER_HUB_PASSWORD
   - docker push chrisjohnson00/radarr_stephenlu_filter
