@@ -10,7 +10,7 @@ app.config.from_pyfile('instance/config.py', silent=False)
 
 @app.route('/')
 def hello():
-    return "Welcome to the Radarr StepenLu Filter"
+    return "Welcome to the Radarr StepenLu Filter" # @TODO create a healthcheck endpoint
 
 
 @app.route('/filter')
