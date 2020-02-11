@@ -10,7 +10,20 @@ app.config.from_pyfile('instance/config.py', silent=False)
 
 @app.route('/')
 def hello():
-    return "Welcome to the Radarr StepenLu Filter" # @TODO create a healthcheck endpoint
+    return "Welcome to the Radarr StepenLu Filter"
+
+
+@app.route('/health')
+def health_check():
+    # can i connect to redis
+    r = get_redis_connection()
+    response = r.client_list()  # throws an execption if not connected
+    required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_APP_ID', 'PUSHOVER_API_TOKEN']
+    for config in required_configs:
+        value = app.config.get(config)
+        if value is None:
+            raise Exception("{} missing from config".format(config))
+    return "Success"
 
 
 @app.route('/filter')
