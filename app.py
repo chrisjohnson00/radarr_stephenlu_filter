@@ -17,7 +17,7 @@ def hello():
 def health_check():
     # can i connect to redis
     r = get_redis_connection()
-    response = r.client_list()  # throws an execption if not connected
+    r.client_list()  # throws an execption if not connected
     required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_APP_ID', 'PUSHOVER_API_TOKEN']
     for config in required_configs:
         value = app.config.get(config)
@@ -34,10 +34,8 @@ def filter_stephenlu():
     for movie in response_json:
         result = tmdb_api_call(movie['imdb_id'])
         if 27 in result['genre_ids']:
-            pass
             print("Skipping '{}' due to Genre".format(result['title']))
         elif float(result['vote_average']) < 6:
-            pass
             print("Skipping '{}' due to rating {}".format(result['title'], result['vote_average']))
         else:
             print("Adding '{}'".format(result['title']))
