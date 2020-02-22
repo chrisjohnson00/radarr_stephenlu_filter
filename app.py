@@ -106,7 +106,7 @@ def process_notification(imdb_id, response_json):
 
 
 def send_pushover_notification(movie_results):
-    pushover_app_id = application.config.get('PUSHOVER_app_ID')
+    pushover_app_id = application.config.get('PUSHOVER_APP_ID')
     pushover_api_token = application.config.get('PUSHOVER_API_TOKEN')
     client = Client(pushover_app_id, api_token=pushover_api_token)
     client.send_message("{} added to Radarr watch list".format(movie_results['title']), title="New Watched Movie")
