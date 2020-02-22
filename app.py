@@ -18,7 +18,7 @@ def health_check():
     # can i connect to redis
     r = get_redis_connection()
     r.client_list()  # throws an execption if not connected
-    required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_application_ID', 'PUSHOVER_API_TOKEN']
+    required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_APP_ID', 'PUSHOVER_API_TOKEN']
     for config in required_configs:
         value = application.config.get(config)
         if value is None:
