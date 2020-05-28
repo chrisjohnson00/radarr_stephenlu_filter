@@ -4,6 +4,7 @@ import requests
 import redis
 from pushover import Client
 import consul
+import os
 
 application = Flask(__name__)
 c = consul.Consul()
@@ -13,8 +14,12 @@ config_keys = keys[1]
 for key in config_keys:
     if key != consul_path:
         config_key = key.replace(consul_path, '')
-        index, data = c.kv.get(key)
-        application.config[config_key] = data['Value'].decode("utf-8")
+        if os.environ.get(config_key):
+            application.config[config_key] = os.environ.get(config_key)
+        else:
+            index, data = c.kv.get(key)
+            application.config[config_key] = data['Value'].decode("utf-8")
+required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_APP_ID', 'PUSHOVER_API_TOKEN', 'REDIS_HOST', 'REDIS_PORT']
 
 
 @application.route('/')
@@ -27,12 +32,23 @@ def health_check():
     # can i connect to redis
     r = get_redis_connection()
     r.client_list()  # throws an execption if not connected
-    required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_APP_ID', 'PUSHOVER_API_TOKEN']
     for config in required_configs:
         value = application.config.get(config)
         if value is None:
             raise Exception("{} missing from config".format(config))
     return "Success"
+
+
+@application.route('/config')
+def config():
+    response_text = ""
+    for config in required_configs:
+        value = application.config.get(config)
+        if any(secret in config for secret in ['KEY', 'TOKEN', 'PASSWORD']):
+            response_text += "{}: [REDACTED]<br/>".format(config)
+        else:
+            response_text += "{}: {}<br/>".format(config, value)
+    return response_text
 
 
 @application.route('/filter')
