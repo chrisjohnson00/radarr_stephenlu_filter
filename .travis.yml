@@ -8,6 +8,7 @@ jobs:
     - stage: build branch
       script:
         - docker build -t chrisjohnson00/radarr_stephenlu_filter -f Dockerfile .
+        - docker run chrisjohnson00/radarr_stephenlu_filter python -m flake8
         - docker login --username=chrisjohnson00 --password=$DOCKER_HUB_PASSWORD
         - docker tag chrisjohnson00/radarr_stephenlu_filter chrisjohnson00/radarr_stephenlu_filter:$TRAVIS_BRANCH
         - docker push chrisjohnson00/radarr_stephenlu_filter:$TRAVIS_BRANCH
