@@ -43,11 +43,11 @@ def filter_stephenlu():
     for movie in response_json:
         result = tmdb_api_call(movie['imdb_id'])
         if 27 in result['genre_ids']:
-            print("Skipping '{}' due to Genre".format(result['title']))
+            print("Skipping '{}' due to Genre".format(result['title']), flush=True)
         elif float(result['vote_average']) < 6:
-            print("Skipping '{}' due to rating {}".format(result['title'], result['vote_average']))
+            print("Skipping '{}' due to rating {}".format(result['title'], result['vote_average']), flush=True)
         else:
-            print("Adding '{}'".format(result['title']))
+            print("Adding '{}'".format(result['title']), flush=True)
             filtered_results.append(transform_tmdb_to_radarr_list(result, movie['imdb_id'], movie['poster_url']))
     return jsonify(filtered_results)
 
@@ -55,7 +55,6 @@ def filter_stephenlu():
 def omdb_api_call(imdb_id):
     api_key = application.config.get('OMDB_API_KEY')
     url = "http://www.omdbapi.com/?i={}&apikey={}".format(imdb_id, api_key)
-    print(url)
     r = requests.get(url)
     response_json = json.loads(r.text)
     return response_json
@@ -75,9 +74,9 @@ def tmdb_api_call(imdb_id):
                                                                                                           api_key)
     cached = get_from_cache(url)
     if cached:
-        print("Cache hit for {}".format(url))
+        print("Cache hit for {}".format(imdb_id), flush=True)
         return json.loads(cached)
-    print("Cache miss for {}".format(url))
+    print("Cache miss for {}".format(imdb_id), flush=True)
     r = requests.get(url)
     response_json = json.loads(r.text)
     save_to_cache(url, response_json['movie_results'][0], 28800)
@@ -108,7 +107,7 @@ def save_to_cache(key, data, ttl):
 def process_notification(imdb_id, response_json):
     notification_sent = get_from_cache(imdb_id)
     if notification_sent:
-        print("notification sent already for this movie")
+        print("notification sent already for this movie", flush=True)
     else:
         send_pushover_notification(response_json['movie_results'][0])
         save_to_cache(imdb_id, imdb_id, -1)
