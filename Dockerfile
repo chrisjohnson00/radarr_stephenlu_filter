@@ -3,6 +3,8 @@ FROM python:3.7-slim
 WORKDIR /usr/src/app
 EXPOSE 5000
 
+RUN apt update && apt install curl -y
+
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
