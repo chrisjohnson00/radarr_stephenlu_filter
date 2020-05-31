@@ -36,6 +36,7 @@ def health_check():
         value = application.config.get(config)
         if value is None:
             raise Exception("{} missing from config".format(config))
+    print("Health Check Success", flush=True)
     return "Success"
 
 
@@ -48,6 +49,7 @@ def config():
             response_text += "{}: [REDACTED]<br/>".format(config)
         else:
             response_text += "{}: {}<br/>".format(config, value)
+    print("Config Check Success", flush=True)
     return response_text
 
 
