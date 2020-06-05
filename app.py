@@ -5,18 +5,24 @@ import redis
 from pushover import Client
 import consul
 import os
+import logging
 
 application = Flask(__name__)
+application.logger.setLevel(logging.INFO)
+application.logger.info("Connecting to Consul")
 c = consul.Consul()
 consul_path = "radarr_stephenlu_filter/"
+application.logger.info("Getting config keys from Consul")
 keys = c.kv.get(consul_path, keys=True)
 config_keys = keys[1]
 for key in config_keys:
     if key != consul_path:
         config_key = key.replace(consul_path, '')
         if os.environ.get(config_key):
+            application.logger.info("Getting {} from environment setting".format(config_key))
             application.config[config_key] = os.environ.get(config_key)
         else:
+            application.logger.info("Getting {} from Consul".format(config_key))
             index, data = c.kv.get(key)
             application.config[config_key] = data['Value'].decode("utf-8")
 required_configs = ['OMDB_API_KEY', 'TMDB_API_KEY', 'PUSHOVER_APP_ID', 'PUSHOVER_API_TOKEN', 'REDIS_HOST', 'REDIS_PORT']
@@ -36,12 +42,12 @@ def health_check():
         value = application.config.get(config)
         if value is None:
             raise Exception("{} missing from config".format(config))
-    print("Health Check Success", flush=True)
     return "Success"
 
 
 @application.route('/config')
 def config():
+    application.logger.info("Rendering config page")
     response_text = ""
     for config in required_configs:
         value = application.config.get(config)
@@ -49,37 +55,27 @@ def config():
             response_text += "{}: [REDACTED]<br/>".format(config)
         else:
             response_text += "{}: {}<br/>".format(config, value)
-    print("Config Check Success", flush=True)
     return response_text
 
 
 @application.route('/filter')
 def filter_stephenlu():
+    application.logger.info("Requesting movie list")
     r = requests.get("https://s3.amazonaws.com/popular-movies/movies.json")
     response_json = json.loads(r.text)
+    application.logger.debug("Response json: {}".format(response_json))
     filtered_results = []
     for movie in response_json:
         result = tmdb_api_call(movie['imdb_id'])
         if 27 in result['genre_ids']:
-            print("Skipping '{}' due to Genre".format(result['title']), flush=True)
+            application.logger.info("Skipping '{}' due to Genre".format(result['title']))
         elif float(result['vote_average']) < 6:
-            print("Skipping '{}' due to rating {}".format(result['title'], result['vote_average']), flush=True)
+            application.logger.info("Skipping '{}' due to rating {}".format(result['title'], result['vote_average']))
         else:
-            print("Adding '{}'".format(result['title']), flush=True)
+            application.logger.info("Adding '{}'".format(result['title']))
             filtered_results.append(transform_tmdb_to_radarr_list(result, movie['imdb_id'], movie['poster_url']))
+            process_notification(movie['imdb_id'], result)
     return jsonify(filtered_results)
-
-
-def omdb_api_call(imdb_id):
-    api_key = application.config.get('OMDB_API_KEY')
-    url = "http://www.omdbapi.com/?i={}&apikey={}".format(imdb_id, api_key)
-    r = requests.get(url)
-    response_json = json.loads(r.text)
-    return response_json
-
-
-def transform_omdb_to_radarr_list(omdb):
-    return {'title': omdb['Title'], 'imdb_id': omdb['imdbID'], 'poster_url': omdb['Poster']}
 
 
 def transform_tmdb_to_radarr_list(tmdb, imdb_id, poster_url):
@@ -92,19 +88,21 @@ def tmdb_api_call(imdb_id):
                                                                                                           api_key)
     cached = get_from_cache(url)
     if cached:
-        print("Cache hit for {}".format(imdb_id), flush=True)
+        application.logger.info("Cache hit for {}".format(imdb_id))
         return json.loads(cached)
-    print("Cache miss for {}".format(imdb_id), flush=True)
+    application.logger.info("Cache miss for {}, requesting from TMDB".format(imdb_id))
     r = requests.get(url)
     response_json = json.loads(r.text)
+    application.logger.debug("Response json: {}".format(response_json))
     save_to_cache(url, response_json['movie_results'][0], 28800)
-    process_notification(imdb_id, response_json)
     return response_json['movie_results'][0]
 
 
 def get_from_cache(key):
     r = get_redis_connection()
-    return r.get(key)
+    value = r.get(key)
+    application.logger.debug("Fetched '{}':'{}' from cache".format(key, value))
+    return value
 
 
 def get_redis_connection():
@@ -116,18 +114,19 @@ def get_redis_connection():
 
 def save_to_cache(key, data, ttl):
     r = get_redis_connection()
+    application.logger.debug("Saving '{}':'{}' to cache".format(key, data))
     if ttl > 0:
         return r.set(key, json.dumps(data), ex=ttl)
     else:
         return r.set(key, json.dumps(data))
 
 
-def process_notification(imdb_id, response_json):
+def process_notification(imdb_id, movie):
     notification_sent = get_from_cache(imdb_id)
     if notification_sent:
-        print("notification sent already for this movie", flush=True)
+        application.logger.info("Notification already sent for movie {}".format(imdb_id))
     else:
-        send_pushover_notification(response_json['movie_results'][0])
+        send_pushover_notification(movie)
         save_to_cache(imdb_id, imdb_id, -1)
 
 
@@ -136,6 +135,7 @@ def send_pushover_notification(movie_results):
     pushover_api_token = application.config.get('PUSHOVER_API_TOKEN')
     client = Client(pushover_app_id, api_token=pushover_api_token)
     client.send_message("{} added to Radarr watch list".format(movie_results['title']), title="New Watched Movie")
+    application.logger.info("Notification sent for movie {}".format(movie_results['title']))
 
 
 if __name__ == "__main__":

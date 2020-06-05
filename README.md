@@ -4,4 +4,9 @@ Run for dev
 
 Run redis locally with
 
-    docker run --name redis -p 6379:6379 -d redis
+    docker run --rm --name redis -p 6379:6379 -d redis
+    
+Port forward to consul
+
+    kubectl port-forward service/consul-consul-server 8500:8500 -n consul
+

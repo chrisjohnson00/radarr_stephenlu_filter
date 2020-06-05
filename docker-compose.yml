@@ -6,16 +6,11 @@ services:
       - redis
     environment:
       - FLASK_ENV=development
+      - REDIS_HOST=redis
     ports:
       - "5000:5000"
     volumes:
     - .:/usr/src/app
-    healthcheck:
-      test: ["CMD", "curl", "localhost:5000"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
-      start_period: 1m
   redis:
     image: redis
     ports:
