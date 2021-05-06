@@ -16,7 +16,7 @@ python-consul==1.1.0
 python-pushover==0.4
 redis==3.5.3
 requests==2.25.0
-six==1.15.0
+six==1.16.0
 urllib3==1.26.2
 Werkzeug==1.0.1
 zipp==3.4.0
