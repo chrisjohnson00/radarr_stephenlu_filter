@@ -8,7 +8,7 @@ import os
 import logging
 
 application = Flask(__name__)
-application.logger.setLevel(logging.INFO)
+application.logger.setLevel(logging.DEBUG)
 application.logger.info("Connecting to Consul")
 c = consul.Consul()
 consul_path = "radarr_stephenlu_filter/"
@@ -37,7 +37,7 @@ def hello():
 def health_check():
     # can i connect to redis
     r = get_redis_connection()
-    r.client_list()  # throws an execption if not connected
+    r.client_list()  # throws an exception if not connected
     for config in required_configs:
         value = application.config.get(config)
         if value is None:
@@ -70,9 +70,10 @@ def filter_stephenlu():
         if 27 in result['genre_ids']:
             application.logger.info("Skipping '{}' due to Genre".format(result['title']))
         elif float(result['vote_average']) < 6:
-            application.logger.info("Skipping '{}' due to rating {}".format(result['title'], result['vote_average']))
+            application.logger.info(
+                f"Skipping '{result['title']}' due to rating {result['vote_average']} which is less than 6")
         else:
-            application.logger.info("Adding '{}'".format(result['title']))
+            application.logger.info("Including '{}'".format(result['title']))
             filtered_results.append(transform_tmdb_to_radarr_list(result, movie['imdb_id'], movie['poster_url']))
             process_notification(movie['imdb_id'], result)
     return jsonify(filtered_results)
@@ -88,9 +89,9 @@ def tmdb_api_call(imdb_id):
                                                                                                           api_key)
     cached = get_from_cache(url)
     if cached:
-        application.logger.info("Cache hit for {}".format(imdb_id))
+        application.logger.info("TMDB Cache hit for {}".format(imdb_id))
         return json.loads(cached)
-    application.logger.info("Cache miss for {}, requesting from TMDB".format(imdb_id))
+    application.logger.info("TMDB Cache miss for {}, requesting from TMDB".format(imdb_id))
     r = requests.get(url)
     response_json = json.loads(r.text)
     application.logger.debug("Response json: {}".format(response_json))
@@ -124,7 +125,7 @@ def save_to_cache(key, data, ttl):
 def process_notification(imdb_id, movie):
     notification_sent = get_from_cache(imdb_id)
     if notification_sent:
-        application.logger.info("Notification already sent for movie {}".format(imdb_id))
+        application.logger.info(f"Notification already sent for movie {movie['title']}")
     else:
         send_pushover_notification(movie)
         save_to_cache(imdb_id, imdb_id, -1)
