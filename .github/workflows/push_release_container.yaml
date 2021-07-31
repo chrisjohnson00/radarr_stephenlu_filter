@@ -1,0 +1,17 @@
+name: 'Push release version tag'
+
+on:
+  push:
+    tags: ['**']
+
+jobs:
+  build_container:
+    runs-on: 'ubuntu-18.04'
+    steps:
+      - uses: 'actions/checkout@v2'
+      - name: 'Build the Docker image'
+        run: 'docker build . -t ${{ github.repository }}:${GITHUB_REF##*/}'
+      - name: 'Login to docker hub'
+        run: 'docker login --username=chrisjohnson00 --password=${{ secrets.DOCKER_HUB_PASSWORD }}'
+      - name: 'Push the Docker image'
+        run: 'docker push ${{ github.repository }}:${GITHUB_REF##*/}'

@@ -10,3 +10,10 @@ Port forward to consul
 
     kubectl port-forward service/consul-consul-server 8500:8500 -n consul
 
+## PyPi Dependency updates
+
+    pip install --upgrade pip
+    pip install --upgrade python-consul python-pushover redis Flask gunicorn
+    pip freeze > requirements.txt
+    sed -i '/pkg_resources/d' requirements.txt
+    sed -i '/dataclasses/d' requirements.txt

@@ -1,9 +1,11 @@
-FROM python:3.9.0-slim
+FROM python:3.9.6-slim
 
 WORKDIR /usr/src/app
 EXPOSE 5000
 
-RUN apt update && apt install -y curl
+RUN apt update && \
+    apt install -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
