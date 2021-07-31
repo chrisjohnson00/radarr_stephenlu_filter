@@ -1,5 +1,16 @@
 # Changelog
 
+## [v2.0.6](https://github.com/chrisjohnson00/radarr_stephenlu_filter/tree/v2.0.6) (2021-07-31)
+
+[Full Changelog](https://github.com/chrisjohnson00/radarr_stephenlu_filter/compare/v2.0.5...v2.0.6)
+
+**Merged pull requests:**
+
+- chore: improving logging [\#87](https://github.com/chrisjohnson00/radarr_stephenlu_filter/pull/87) ([chrisjohnson00](https://github.com/chrisjohnson00))
+- chore: bump docker/login-action from 1.9.0 to 1.10.0 [\#86](https://github.com/chrisjohnson00/radarr_stephenlu_filter/pull/86) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore: bump mathieudutour/github-tag-action from 5.5 to 5.6 [\#85](https://github.com/chrisjohnson00/radarr_stephenlu_filter/pull/85) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore: bump actions/cache from 2.1.5 to 2.1.6 [\#84](https://github.com/chrisjohnson00/radarr_stephenlu_filter/pull/84) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v2.0.5](https://github.com/chrisjohnson00/radarr_stephenlu_filter/tree/v2.0.5) (2021-07-31)
 
 [Full Changelog](https://github.com/chrisjohnson00/radarr_stephenlu_filter/compare/v2.0.4...v2.0.5)
