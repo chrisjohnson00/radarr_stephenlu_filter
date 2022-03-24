@@ -10,7 +10,7 @@ Jinja2==3.0.1
 MarkupSafe==2.0.1
 python-consul==1.1.0
 python-pushover==0.4
-redis==3.5.3
+redis==4.2.0
 requests==2.26.0
 six==1.16.0
 typing-extensions==3.10.0.0
